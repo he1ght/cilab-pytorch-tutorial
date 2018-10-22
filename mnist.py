@@ -21,12 +21,20 @@ class BasicMLP(nn.Module):
 
 
 def train(args, model, device, train_loader, optimizer, epoch):
+    # In training progress
+    # 1. turn on training mode
     model.train()
     for batch_idx, (data, target) in enumerate(train_loader):
+        # Input data & matched real numbers
         data, target = data.to(device), target.to(device)
+        # 2. Reset optimizer's parameters' gradient
         optimizer.zero_grad()
+        # 3. Predict the result(output) with the model
         output = model(data)
+        # 4. Calculate the loss(cost). Loss
+        # The loss indicates how different the predicted value is from the actual value
         loss = F.nll_loss(output, target)
+        # 5. Backpropagation & optimization
         loss.backward()
         optimizer.step()
         if batch_idx % args.log_interval == 0:
@@ -54,7 +62,7 @@ def test(args, model, device, test_loader):
 
 
 def main():
-    # Training settings
+    # 0. Training settings
     parser = argparse.ArgumentParser(description='PyTorch MNIST Example')
     parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                         help='input batch size for training (default: 64)')
@@ -91,11 +99,16 @@ def main():
             transforms.ToTensor()
         ])),
         batch_size=args.test_batch_size, shuffle=True, **kwargs)
+
+    # 1. Model representation
     model = BasicMLP().to(device)
+    # 2. Setup optimizer
     optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum)
 
     for epoch in range(1, args.epochs + 1):
+        # 3. Train the model
         train(args, model, device, train_loader, optimizer, epoch)
+        # 4. Evaluate the training model
         test(args, model, device, test_loader)
 
 
